@@ -42,7 +42,7 @@ function click(event) {
   gridPoint.forEach((row, i) =>
     row.forEach((point, j) => {
       if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointSize ** 2) {
-        console.log({ i, j });
+        document.getElementById("disp").innerHTML = `i: ${i}, j: ${j}`;
       }
     })
   );
