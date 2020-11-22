@@ -9,6 +9,8 @@ const sizeY = 5;
 const pointSize = 15;
 
 let gridPoint = [];
+let draggingItem = null;
+let edge = [];
 
 // 点の位置を計算する
 for (let i = 0; i < sizeX + 1; i++) {
@@ -25,6 +27,8 @@ for (let i = 0; i < sizeX + 1; i++) {
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
+
+  // 点をかく
   for (let x = 0; x < gridPoint.length; x++) {
     for (let y = 0; y < gridPoint[x].length; y++) {
       ctx.fillStyle = "black";
@@ -33,10 +37,16 @@ function draw() {
       ctx.fill();
     }
   }
+
+  // 線をかく
+  edge.forEach((e) => {
+    const startPoint = gridPoint[e[0].i][e[0].j];
+    const endPoint = gridPoint[e[1].i][e[1].j];
+    console.log({ e, startPoint, endPoint });
+    line(startPoint, endPoint);
+  });
 }
 draw();
-
-let draggingItem = null;
 
 // クリックされたときの処理
 canvas.addEventListener("mousedown", click);
@@ -50,8 +60,6 @@ function click(event) {
     row.forEach((point, j) => {
       if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointSize ** 2) {
         draggingItem = { i: i, j: j };
-
-        document.getElementById("disp").innerHTML = `i: ${i}, j: ${j}`;
       }
     })
   );
@@ -67,17 +75,35 @@ function move(event) {
   const y = ((event.clientY - rect.top) / canvas.clientHeight) * height;
 
   draw();
-  ctx.beginPath();
-  ctx.strokeStyle = "red";
-  ctx.lineWidth = 5;
   const startPoint = gridPoint[draggingItem.i][draggingItem.j];
-  ctx.moveTo(startPoint.x, startPoint.y);
-  ctx.lineTo(x, y);
-  ctx.stroke();
+
+  line(startPoint, { x, y });
 }
 
 canvas.addEventListener("mouseup", up);
 function up(event) {
-  draggingItem = null;
+  if (!draggingItem) return;
+  // 座標取得
+  const rect = canvas.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / canvas.clientWidth) * width;
+  const y = ((event.clientY - rect.top) / canvas.clientHeight) * height;
+
+  gridPoint.forEach((row, i) =>
+    row.forEach((point, j) => {
+      if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointSize ** 2) {
+        edge.push([draggingItem, { i, j }]);
+      }
+    })
+  );
   draw();
+  draggingItem = null;
+}
+
+function line(from, to) {
+  ctx.beginPath();
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 5;
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
 }
