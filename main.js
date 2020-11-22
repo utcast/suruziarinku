@@ -183,5 +183,97 @@ function xy2ij(point, size) {
 
 document.getElementById("judgeButton").addEventListener("click", judge);
 function judge() {
-  window.alert("正解！");
+  let OK = true;
+  // 線の数をチェックする
+  probolem.forEach((row, i) => {
+    row.forEach((rightCnt, j) => {
+      let cnt = 0;
+      // 上
+      if (edge[i][j].right) cnt++;
+      // 左
+      if (edge[i][j].down) cnt++;
+      // 右
+      if (edge[i][j + 1].right) cnt++;
+      //
+      if (edge[i + 1][j].down) cnt++;
+
+      if (rightCnt !== null && rightCnt !== cnt) OK = false;
+    });
+  });
+
+  OK = OK && checkloop();
+
+  if (OK) {
+    window.alert("正解！");
+  } else {
+    window.alert("不正解！ざんね〜ん");
+  }
+
+  checkloop();
+}
+
+function getConnectedNodes(i, j) {
+  target = [];
+
+  if (edge[i][j].down) target.push({ i: i, j: j + 1 });
+  if (edge[i][j].right) target.push({ i: i + 1, j: j });
+  if (j > 0 && edge[i][j - 1].down) target.push({ i: i, j: j - 1 });
+  if (i > 0 && edge[i - 1][j].right) target.push({ i: i - 1, j: j });
+  return target;
+}
+
+function checkloop() {
+  let visited = [...Array(sizeX + 1)].map((_) =>
+    [...Array(sizeY + 1)].map((_) => false)
+  );
+
+  const dfs = (i, j) => {
+    visited[i][j] = true;
+    target = getConnectedNodes(i, j);
+    if (target.length !== 2) {
+      return false;
+    }
+
+    const visited0 = visited[target[0].i][target[0].j];
+    const visited1 = visited[target[1].i][target[1].j];
+
+    let next;
+    if (visited0 && visited1) {
+      return true;
+    } else if (visited0) {
+      next = target[1];
+    } else if (visited1) {
+      next = target[0];
+    } else {
+      next = target[0];
+    }
+    return dfs(next.i, next.j);
+  };
+
+  let OK = true;
+  let loop_found = false;
+  for (let i = 0; i < sizeX + 1; i++) {
+    for (let j = 0; j < sizeY + 1; j++) {
+      if (visited[i][j]) continue;
+      if (getConnectedNodes(i, j).length === 0) {
+        visited[i][j] = true;
+        continue;
+      }
+      if (dfs(i, j)) {
+        // 2ループ
+        if (loop_found) {
+          OK = false;
+          break;
+        }
+        loop_found = true;
+      } else {
+        OK = false;
+        break;
+      }
+    }
+    if (!OK) {
+      break;
+    }
+  }
+  return OK;
 }
