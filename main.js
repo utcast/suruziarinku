@@ -7,6 +7,7 @@ const sizeX = 5;
 const sizeY = 5;
 
 const pointSize = 15;
+const pointClickSize = 50;
 
 let gridPoint = [];
 let draggingItem = null;
@@ -42,7 +43,6 @@ function draw() {
   edge.forEach((e) => {
     const startPoint = gridPoint[e[0].i][e[0].j];
     const endPoint = gridPoint[e[1].i][e[1].j];
-    console.log({ e, startPoint, endPoint });
     line(startPoint, endPoint);
   });
 }
@@ -58,7 +58,7 @@ function click(event) {
 
   gridPoint.forEach((row, i) =>
     row.forEach((point, j) => {
-      if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointSize ** 2) {
+      if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointClickSize ** 2) {
         draggingItem = { i: i, j: j };
       }
     })
@@ -90,8 +90,17 @@ function up(event) {
 
   gridPoint.forEach((row, i) =>
     row.forEach((point, j) => {
-      if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointSize ** 2) {
-        edge.push([draggingItem, { i, j }]);
+      if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointClickSize ** 2) {
+        // ちゃんと隣かどうかチェックする
+        if (draggingItem.i === i) {
+          if (draggingItem.j - j === 1 || draggingItem.j - j === -1) {
+            edge.push([draggingItem, { i, j }]);
+          }
+        } else if (draggingItem.j === j) {
+          if (draggingItem.i - i === 1 || draggingItem.i - i === -1) {
+            edge.push([draggingItem, { i, j }]);
+          }
+        }
       }
     })
   );
