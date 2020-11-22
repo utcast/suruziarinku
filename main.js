@@ -11,7 +11,9 @@ const pointClickSize = 50;
 
 let gridPoint = [];
 let draggingItem = null;
-let edge = [];
+let edge = [...Array(sizeX + 1)].map((_) =>
+  [...Array(sizeY + 1)].map((_) => ({ right: false, down: false }))
+);
 let draggingEdge = null;
 
 // 点の位置を計算する
@@ -40,10 +42,19 @@ function draw() {
   }
 
   // 線をかく
-  edge.forEach((e) => {
-    const startPoint = gridPoint[e[0].i][e[0].j];
-    const endPoint = gridPoint[e[1].i][e[1].j];
-    line(startPoint, endPoint);
+  edge.forEach((row, i) => {
+    row.forEach((pt, j) => {
+      if (pt.down) {
+        const startPoint = gridPoint[i][j];
+        const endPoint = gridPoint[i][j + 1];
+        line(startPoint, endPoint);
+      }
+      if (pt.right) {
+        const startPoint = gridPoint[i][j];
+        const endPoint = gridPoint[i + 1][j];
+        line(startPoint, endPoint);
+      }
+    });
   });
 
   if (draggingEdge) {
@@ -101,17 +112,18 @@ function up(event) {
   draw();
   draggingItem = null;
 }
+
 function addEdge(from, to) {
-  const { i, j } = to;
-  // ちゃんと隣かどうかチェックする
-  if (from.i === i) {
-    if (from.j - j === 1 || from.j - j === -1) {
-      edge.push([from, { i, j }]);
+  if (from.i === to.i) {
+    // iが等しいとき
+    if (from.j - to.j === 1 || from.j - to.j === -1) {
+      edge[from.i][Math.min(from.j, to.j)].down = true;
       return true;
     }
-  } else if (from.j === j) {
-    if (from.i - i === 1 || from.i - i === -1) {
-      edge.push([from, { i, j }]);
+  } else if (from.j === to.j) {
+    // jが等しいとき
+    if (from.i - to.i === 1 || from.i - to.i === -1) {
+      edge[Math.min(from.i, to.i)][from.j].right = true;
       return true;
     }
   }
