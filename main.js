@@ -9,6 +9,14 @@ const sizeY = 5;
 const pointSize = 15;
 const pointClickSize = 50;
 
+const probolem = [
+  [null, null, 3, null, null],
+  [3, 2, null, 2, 3],
+  [null, null, 2, null, null],
+  [3, 1, null, 3, null],
+  [null, 2, 2, null, null],
+];
+
 let gridPoint = [];
 let draggingItem = null;
 let edge = [...Array(sizeX + 1)].map((_) =>
@@ -59,6 +67,21 @@ function draw() {
 
   if (draggingEdge) {
     line(draggingEdge[0], draggingEdge[1]);
+  }
+
+  // 文字を書く
+  for (let i = 0; i < sizeX; i++) {
+    const x = ((i + 1) / (sizeX + 1)) * width;
+    let row = [];
+    for (let j = 0; j < sizeY; j++) {
+      const y = ((j + 1) / (sizeY + 1)) * height;
+      if (probolem[i][j] !== null) {
+        ctx.font = "30px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(probolem[i][j], x, y);
+      }
+    }
   }
 }
 draw();
@@ -156,4 +179,9 @@ function xy2ij(point, size) {
     })
   );
   return ij;
+}
+
+document.getElementById("judgeButton").addEventListener("click", judge);
+function judge() {
+  window.alert("正解！");
 }
