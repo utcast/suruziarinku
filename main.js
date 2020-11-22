@@ -10,11 +10,11 @@ const pointSize = 15;
 const pointClickSize = 50;
 
 const probolem = [
-  [null, null, 3, null, null],
-  [3, 2, null, 2, 3],
-  [null, null, 2, null, null],
-  [3, 1, null, 3, null],
-  [null, 2, 2, null, null],
+  [3, null, 3, null, null],
+  [null, 1, null, null, 3],
+  [2, 0, 0, 2, null],
+  [null, null, 1, null, null],
+  [null, null, 2, 3, null],
 ];
 
 let gridPoint = [];
