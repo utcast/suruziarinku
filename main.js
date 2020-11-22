@@ -22,17 +22,24 @@ for (let i = 0; i < sizeX + 1; i++) {
 }
 
 // 点を打つ
-for (let x = 0; x < gridPoint.length; x++) {
-  for (let y = 0; y < gridPoint[x].length; y++) {
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.arc(gridPoint[x][y].x, gridPoint[x][y].y, pointSize, 0, 2 * Math.PI);
-    ctx.fill();
+
+function draw() {
+  ctx.clearRect(0, 0, width, height);
+  for (let x = 0; x < gridPoint.length; x++) {
+    for (let y = 0; y < gridPoint[x].length; y++) {
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.arc(gridPoint[x][y].x, gridPoint[x][y].y, pointSize, 0, 2 * Math.PI);
+      ctx.fill();
+    }
   }
 }
+draw();
+
+let draggingItem = null;
 
 // クリックされたときの処理
-canvas.addEventListener("click", click);
+canvas.addEventListener("mousedown", click);
 function click(event) {
   // 座標取得
   const rect = canvas.getBoundingClientRect();
@@ -42,8 +49,35 @@ function click(event) {
   gridPoint.forEach((row, i) =>
     row.forEach((point, j) => {
       if ((point.x - x) ** 2 + (point.y - y) ** 2 < pointSize ** 2) {
+        draggingItem = { i: i, j: j };
+
         document.getElementById("disp").innerHTML = `i: ${i}, j: ${j}`;
       }
     })
   );
+}
+
+canvas.addEventListener("mousemove", move);
+function move(event) {
+  if (!draggingItem) return;
+
+  // 座標取得
+  const rect = canvas.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / canvas.clientWidth) * width;
+  const y = ((event.clientY - rect.top) / canvas.clientHeight) * height;
+
+  draw();
+  ctx.beginPath();
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 5;
+  const startPoint = gridPoint[draggingItem.i][draggingItem.j];
+  ctx.moveTo(startPoint.x, startPoint.y);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+}
+
+canvas.addEventListener("mouseup", up);
+function up(event) {
+  draggingItem = null;
+  draw();
 }
